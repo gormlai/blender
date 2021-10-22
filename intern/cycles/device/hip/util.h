@@ -64,7 +64,7 @@ static inline bool hipSupportsDevice(const int hipDevId)
   hipDeviceGetAttribute(&major, hipDeviceAttributeComputeCapabilityMajor, hipDevId);
   hipDeviceGetAttribute(&minor, hipDeviceAttributeComputeCapabilityMinor, hipDevId);
 
-  return (major > 7) || (major == 7 && minor >= 0);
+  return (major > 8) || (major == 8 && minor >= 1);
 }
 
 CCL_NAMESPACE_END
