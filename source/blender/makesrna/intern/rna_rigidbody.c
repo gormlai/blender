@@ -730,12 +730,12 @@ static void rna_RigidBodyCon_motor_lin_max_impulse_set(PointerRNA *ptr, float va
 
   rbc->motor_lin_max_impulse = value;
 
-#  ifdef WITH_BULLET
-  if (rbc->physics_constraint && rbc->type == RBC_TYPE_MOTOR) {
+#ifdef WITH_BULLET
+  if (rbc->physics_constraint /*&& rbc->type == RBC_TYPE_MOTOR*/) {
     RB_constraint_set_max_impulse_motor(
         rbc->physics_constraint, value, rbc->motor_ang_max_impulse);
   }
-#  endif
+#endif
 }
 
 static void rna_RigidBodyCon_use_motor_lin_set(PointerRNA *ptr, bool value)
@@ -775,7 +775,7 @@ static void rna_RigidBodyCon_motor_lin_target_velocity_set(PointerRNA *ptr, floa
   rbc->motor_lin_target_velocity = value;
 
 #  ifdef WITH_BULLET
-  if (rbc->physics_constraint && rbc->type == RBC_TYPE_MOTOR) {
+  if (rbc->physics_constraint/* && rbc->type == RBC_TYPE_MOTOR*/) {
     RB_constraint_set_target_velocity_motor(
         rbc->physics_constraint, value, rbc->motor_ang_target_velocity);
   }
@@ -789,7 +789,7 @@ static void rna_RigidBodyCon_motor_ang_max_impulse_set(PointerRNA *ptr, float va
   rbc->motor_ang_max_impulse = value;
 
 #  ifdef WITH_BULLET
-  if (rbc->physics_constraint && rbc->type == RBC_TYPE_MOTOR) {
+  if (rbc->physics_constraint /*&& rbc->type == RBC_TYPE_MOTOR*/) {
     RB_constraint_set_max_impulse_motor(
         rbc->physics_constraint, rbc->motor_lin_max_impulse, value);
   }
@@ -803,7 +803,7 @@ static void rna_RigidBodyCon_motor_ang_target_velocity_set(PointerRNA *ptr, floa
   rbc->motor_ang_target_velocity = value;
 
 #  ifdef WITH_BULLET
-  if (rbc->physics_constraint && rbc->type == RBC_TYPE_MOTOR) {
+  if (rbc->physics_constraint /*&& rbc->type == RBC_TYPE_MOTOR*/) {
     RB_constraint_set_target_velocity_motor(
         rbc->physics_constraint, rbc->motor_lin_target_velocity, value);
   }
