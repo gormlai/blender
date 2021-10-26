@@ -210,8 +210,9 @@ void RB_body_get_scale(rbRigidBody *object, float v_out[3]);
 /* ............ */
 
 void RB_body_apply_central_force(rbRigidBody *body, const float v_in[3]);
+void RB_body_apply_force(rbRigidBody *object, const float force_in[3], const float rel_pos_in[3]);
 
-/* ********************************** */
+    /* ********************************** */
 /* Collision Shape Methods */
 
 /* Setup (Standard Shapes) ----------- */

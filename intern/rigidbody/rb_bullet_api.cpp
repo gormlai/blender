@@ -327,6 +327,8 @@ void RB_world_convex_sweep_test(rbDynamicsWorld *world,
 }
 
 /* ............ */
+    
+
 
 rbRigidBody *RB_body_new(rbCollisionShape *shape, const float loc[3], const float rot[4])
 {
@@ -662,11 +664,20 @@ void RB_body_get_scale(rbRigidBody *object, float v_out[3])
 /* ............ */
 /* Overrides for simulation */
 
+
 void RB_body_apply_central_force(rbRigidBody *object, const float v_in[3])
 {
   btRigidBody *body = object->body;
 
   body->applyCentralForce(btVector3(v_in[0], v_in[1], v_in[2]));
+}
+
+void RB_body_apply_force(rbRigidBody *object, const float force_in[3], const float rel_pos_in[3])
+{
+  btRigidBody *body = object->body;
+  const btVector3 force(force_in[0], force_in[1], force_in[2]);
+  const btVector3 rel_pos(rel_pos_in[0], rel_pos_in[1], rel_pos_in[2]);
+  body->applyForce(force, rel_pos);
 }
 
 /* ********************************** */
