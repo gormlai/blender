@@ -56,6 +56,9 @@
 
 #include "physics_intern.h"
 
+#include "RBI_api.h"
+
+
 /* ********************************************** */
 /* Helper API's for RigidBody Objects Editing */
 
@@ -581,3 +584,53 @@ void RIGIDBODY_OT_mass_calculate(wmOperatorType *ot)
 }
 
 /* ********************************************** */
+
+static int rigidbody_objects_apply_central_impulse_exec(bContext *C, wmOperator *op)
+{
+  float v[3];
+  RNA_float_get_array(op->ptr, "impulse", &v[0]);
+
+  /* apply this to all selected objects (with rigidbodies)... */
+  Depsgraph *depsgraph = CTX_data_ensure_evaluated_depsgraph(C);
+  CTX_DATA_BEGIN (C, Object *, ob, selected_objects) {
+    if (ob->rigidbody_object) {
+      PointerRNA ptr;   
+
+      Object *ob_eval = DEG_get_evaluated_object(depsgraph, ob);
+      RigidBodyOb *rigidBody = ob_eval->rigidbody_object;
+      RB_body_apply_central_force(rigidBody->shared->physics_object, v);
+    }
+  }
+  CTX_DATA_END;
+
+  return OPERATOR_FINISHED;
+}
+
+void RIGIDBODY_OT_apply_central_impulse(wmOperatorType *ot)
+{
+  /* identifiers */
+  ot->idname = "RIGIDBODY_OT_apply_central_impulse";
+  ot->name = "Apply Central_Impulse";
+  ot->description = "apply an impulse to the center of mass of an object";
+
+  /* callbacks */
+  ot->invoke = WM_menu_invoke; /* XXX */
+  ot->exec = rigidbody_objects_apply_central_impulse_exec;
+  ot->poll = ED_operator_rigidbody_active_poll;
+  ot->poll_property = NULL;
+
+  /* flags */
+  ot->flag = OPTYPE_REGISTER;
+
+  static float v[3] = {0, 0, 0};
+  RNA_def_float_vector_xyz(ot->srna,
+                           "impulse",
+                           3,
+                           &v[0],
+                           - FLT_MAX + 10,
+                           FLT_MAX - 10,
+                           "Impulse",
+                           "Impulse value to add",
+                           -FLT_MAX,
+                           FLT_MAX);
+}
