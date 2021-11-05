@@ -851,6 +851,31 @@ static void rna_RigidBodyWorld_convex_sweep_test(RigidBodyWorld *rbw,
 #  endif
 }
 
+/* Collision test */
+static void rna_RigidBodyWorld_contact_pair_test(RigidBodyWorld *rbw,
+                                                   ReportList *reports,
+                                                 Object *object0,
+                                                 Object *object1,
+                                                 int *r_hit)
+{
+#  ifdef WITH_BULLET
+  RigidBodyOb *rob0 = object0->rigidbody_object;
+  RigidBodyOb *rob1 = object1->rigidbody_object;
+
+  if (rbw->shared->physics_world != NULL &&
+    rob0->shared->physics_object != NULL &&
+      rob1->shared->physics_object != NULL) {
+    *r_hit = RB_world_contact_pair_test(rbw->shared->physics_world,
+                               rob0->shared->physics_object,
+                               rob1->shared->physics_object);
+  }
+#  else
+  UNUSED_VARS(rbw, reports, object0, object1, r_hit);
+#  endif
+}
+
+
+
 static PointerRNA rna_RigidBodyWorld_PointCache_get(PointerRNA *ptr)
 {
   RigidBodyWorld *rbw = ptr->data;
@@ -1007,6 +1032,29 @@ static void rna_def_rigidbody_world(BlenderRNA *brna)
                               1e4);
   RNA_def_parameter_flags(parm, PROP_THICK_WRAP, 0);
   RNA_def_function_output(func, parm);
+  parm = RNA_def_int(func,
+                     "has_hit",
+                     0,
+                     0,
+                     0,
+                     "",
+                     "If the function has found collision point, value is 1, otherwise 0",
+                     0,
+                     0);
+  RNA_def_function_output(func, parm);
+
+  /* Contact pair test */
+  func = RNA_def_function(srna, "contact_pair_test", "rna_RigidBodyWorld_contact_pair_test");
+  RNA_def_function_ui_description(
+      func, "Check if two rigid bodies collide in the current rigidbody world");
+  RNA_def_function_flag(func, FUNC_USE_REPORTS);
+  parm = RNA_def_pointer(
+      func, "object0", "Object", "", "The first rigid body");
+  RNA_def_parameter_flags(parm, PROP_NEVER_NULL, PARM_REQUIRED);
+  RNA_def_parameter_clear_flags(parm, PROP_THICK_WRAP, 0);
+  parm = RNA_def_pointer(func, "object1", "Object", "", "The second rigid body");
+  RNA_def_parameter_flags(parm, PROP_NEVER_NULL, PARM_REQUIRED);
+  RNA_def_parameter_clear_flags(parm, PROP_THICK_WRAP, 0);
   parm = RNA_def_int(func,
                      "has_hit",
                      0,

@@ -117,6 +117,8 @@ void RB_world_convex_sweep_test(rbDynamicsWorld *world,
                                 float v_normal[3],
                                 int *r_hit);
 
+bool RB_world_contact_pair_test(rbDynamicsWorld *world, rbRigidBody *object0, rbRigidBody *object1);
+
 /* ............ */
 
 /* Create new RigidBody instance */

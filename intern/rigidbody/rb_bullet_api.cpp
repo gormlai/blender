@@ -66,6 +66,7 @@
 #include "BulletCollision/CollisionShapes/btScaledBvhTriangleMeshShape.h"
 #include "BulletCollision/Gimpact/btGImpactCollisionAlgorithm.h"
 #include "BulletCollision/Gimpact/btGImpactShape.h"
+#include "BulletCollision/CollisionDispatch/btCollisionWorld.h"
 
 struct rbDynamicsWorld {
   btDiscreteDynamicsWorld *dynamicsWorld;
@@ -325,6 +326,37 @@ void RB_world_convex_sweep_test(rbDynamicsWorld *world,
     *r_hit = -2;
   }
 }
+
+bool RB_world_contact_pair_test(rbDynamicsWorld *world, rbRigidBody *object0, rbRigidBody *object1)
+{
+  btRigidBody *body0 = object0->body;
+  btRigidBody *body1 = object1->body;
+  
+  struct MyContactResultCallback : public btCollisionWorld::ContactResultCallback {
+   public:
+    bool hasHit = false;
+    btScalar addSingleResult(btManifoldPoint &cp,
+                             const btCollisionObjectWrapper *colObj0Wrap,
+                             int partId0,
+                             int index0,
+                             const btCollisionObjectWrapper *colObj1Wrap,
+                             int partId1,
+                             int index1) override
+    {
+      hasHit = true;
+      return 1.0f;
+    }
+
+  };
+
+  MyContactResultCallback resultCallback = {};
+  world->dynamicsWorld->contactPairTest(body0, body1, resultCallback);
+  if (resultCallback.hasHit)
+    return true;
+
+  return false;
+}
+
 
 /* ............ */
     
