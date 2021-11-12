@@ -1319,10 +1319,23 @@ void RB_constraint_set_breaking_threshold(rbConstraint *con, float threshold)
 
 void RB_constraint_set_enable_motor(rbConstraint *con, int enable_lin, int enable_ang)
 {
-  btGeneric6DofConstraint *constraint = reinterpret_cast<btGeneric6DofConstraint *>(con);
-
-  constraint->getTranslationalLimitMotor()->m_enableMotor[0] = enable_lin;
-  constraint->getRotationalLimitMotor(0)->m_enableMotor = enable_ang;
+  btTypedConstraint *generalConstraint = reinterpret_cast<btTypedConstraint *>(con);
+  const btTypedConstraintType constraintType = generalConstraint->getConstraintType();
+  switch (constraintType) {
+    case D6_CONSTRAINT_TYPE: {
+      btGeneric6DofConstraint *constraint = reinterpret_cast<btGeneric6DofConstraint *>(generalConstraint);
+      constraint->getTranslationalLimitMotor()->m_enableMotor[0] = enable_lin;
+      constraint->getRotationalLimitMotor(0)->m_enableMotor = enable_ang;
+    }
+      break;
+    case HINGE_CONSTRAINT_TYPE: {
+      btHingeConstraint *constraint = reinterpret_cast<btHingeConstraint *>(generalConstraint);
+      constraint->enableAngularMotor = enable_ang;
+    }
+      break;
+    default:
+      break;
+  }
 }
 
 void RB_constraint_set_max_impulse_motor(rbConstraint *con,
