@@ -1330,7 +1330,7 @@ void RB_constraint_set_enable_motor(rbConstraint *con, int enable_lin, int enabl
       break;
     case HINGE_CONSTRAINT_TYPE: {
       btHingeConstraint *constraint = reinterpret_cast<btHingeConstraint *>(generalConstraint);
-      constraint->enableAngularMotor = enable_ang;
+      constraint->enableAngularMotor(enable_ang, constraint->getMotorTargetVelocity(), constraint->getMaxMotorImpulse());
     }
       break;
     default:
