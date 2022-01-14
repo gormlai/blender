@@ -53,7 +53,6 @@
 #include <errno.h>
 #include <stdio.h>
 
-#include "RBI_api.h"
 
 #include "btBulletDynamicsCommon.h"
 
@@ -67,6 +66,8 @@
 #include "BulletCollision/Gimpact/btGImpactCollisionAlgorithm.h"
 #include "BulletCollision/Gimpact/btGImpactShape.h"
 #include "BulletCollision/CollisionDispatch/btCollisionWorld.h"
+
+#include "RBI_api.h"
 
 struct rbDynamicsWorld {
   btDiscreteDynamicsWorld *dynamicsWorld;
