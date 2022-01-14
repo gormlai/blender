@@ -29,6 +29,7 @@ set(INC
   ../../../../intern/glew-mx
   ../../../../intern/guardedalloc
   ../../../../intern/mantaflow/extern
+  ../../../../intern/rigidbody
 )
 
 set(SRC
