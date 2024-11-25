@@ -102,6 +102,8 @@ void RB_world_convex_sweep_test(rbDynamicsWorld *world,
                                 float v_normal[3],
                                 int *r_hit);
 
+bool RB_world_contact_pair_test(rbDynamicsWorld *world, rbRigidBody *object0, rbRigidBody *object1);
+
 /* ............ */
 
 /* Create new RigidBody instance */
@@ -195,8 +197,9 @@ void RB_body_get_scale(rbRigidBody *object, float v_out[3]);
 /* ............ */
 
 void RB_body_apply_central_force(rbRigidBody *body, const float v_in[3]);
+void RB_body_apply_force(rbRigidBody *object, const float force_in[3], const float rel_pos_in[3]);
 
-/* ********************************** */
+    /* ********************************** */
 /* Collision Shape Methods */
 
 /* Setup (Standard Shapes) ----------- */

@@ -38,7 +38,6 @@
 #include <errno.h>
 #include <stdio.h>
 
-#include "RBI_api.h"
 
 #include "btBulletDynamicsCommon.h"
 
@@ -51,6 +50,9 @@
 #include "BulletCollision/CollisionShapes/btScaledBvhTriangleMeshShape.h"
 #include "BulletCollision/Gimpact/btGImpactCollisionAlgorithm.h"
 #include "BulletCollision/Gimpact/btGImpactShape.h"
+#include "BulletCollision/CollisionDispatch/btCollisionWorld.h"
+
+#include "RBI_api.h"
 
 struct rbDynamicsWorld {
   btDiscreteDynamicsWorld *dynamicsWorld;
@@ -311,7 +313,40 @@ void RB_world_convex_sweep_test(rbDynamicsWorld *world,
   }
 }
 
+bool RB_world_contact_pair_test(rbDynamicsWorld *world, rbRigidBody *object0, rbRigidBody *object1)
+{
+  btRigidBody *body0 = object0->body;
+  btRigidBody *body1 = object1->body;
+  
+  struct MyContactResultCallback : public btCollisionWorld::ContactResultCallback {
+   public:
+    bool hasHit = false;
+    btScalar addSingleResult(btManifoldPoint &cp,
+                             const btCollisionObjectWrapper *colObj0Wrap,
+                             int partId0,
+                             int index0,
+                             const btCollisionObjectWrapper *colObj1Wrap,
+                             int partId1,
+                             int index1) override
+    {
+      hasHit = true;
+      return 1.0f;
+    }
+
+  };
+
+  MyContactResultCallback resultCallback = {};
+  world->dynamicsWorld->contactPairTest(body0, body1, resultCallback);
+  if (resultCallback.hasHit)
+    return true;
+
+  return false;
+}
+
+
 /* ............ */
+    
+
 
 rbRigidBody *RB_body_new(rbCollisionShape *shape, const float loc[3], const float rot[4])
 {
@@ -647,11 +682,20 @@ void RB_body_get_scale(rbRigidBody *object, float v_out[3])
 /* ............ */
 /* Overrides for simulation */
 
+
 void RB_body_apply_central_force(rbRigidBody *object, const float v_in[3])
 {
   btRigidBody *body = object->body;
 
   body->applyCentralForce(btVector3(v_in[0], v_in[1], v_in[2]));
+}
+
+void RB_body_apply_force(rbRigidBody *object, const float force_in[3], const float rel_pos_in[3])
+{
+  btRigidBody *body = object->body;
+  const btVector3 force(force_in[0], force_in[1], force_in[2]);
+  const btVector3 rel_pos(rel_pos_in[0], rel_pos_in[1], rel_pos_in[2]);
+  body->applyForce(force, rel_pos);
 }
 
 /* ********************************** */
@@ -1268,10 +1312,23 @@ void RB_constraint_set_breaking_threshold(rbConstraint *con, float threshold)
 
 void RB_constraint_set_enable_motor(rbConstraint *con, int enable_lin, int enable_ang)
 {
-  btGeneric6DofConstraint *constraint = reinterpret_cast<btGeneric6DofConstraint *>(con);
-
-  constraint->getTranslationalLimitMotor()->m_enableMotor[0] = enable_lin;
-  constraint->getRotationalLimitMotor(0)->m_enableMotor = enable_ang;
+  btTypedConstraint *generalConstraint = reinterpret_cast<btTypedConstraint *>(con);
+  const btTypedConstraintType constraintType = generalConstraint->getConstraintType();
+  switch (constraintType) {
+    case D6_CONSTRAINT_TYPE: {
+      btGeneric6DofConstraint *constraint = reinterpret_cast<btGeneric6DofConstraint *>(generalConstraint);
+      constraint->getTranslationalLimitMotor()->m_enableMotor[0] = enable_lin;
+      constraint->getRotationalLimitMotor(0)->m_enableMotor = enable_ang;
+    }
+      break;
+    case HINGE_CONSTRAINT_TYPE: {
+      btHingeConstraint *constraint = reinterpret_cast<btHingeConstraint *>(generalConstraint);
+      constraint->enableAngularMotor(enable_ang, constraint->getMotorTargetVelocity(), constraint->getMaxMotorImpulse());
+    }
+      break;
+    default:
+      break;
+  }
 }
 
 void RB_constraint_set_max_impulse_motor(rbConstraint *con,

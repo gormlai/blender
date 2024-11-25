@@ -83,6 +83,8 @@ static void operatortypes_particle()
 
   WM_operatortype_append(RIGIDBODY_OT_world_add);
   WM_operatortype_append(RIGIDBODY_OT_world_remove);
+
+  WM_operatortype_append(RIGIDBODY_OT_apply_central_impulse);
   //  WM_operatortype_append(RIGIDBODY_OT_world_export);
 }
 

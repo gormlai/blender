@@ -1150,6 +1150,17 @@ static void rigidbody_validate_sim_constraint(RigidBodyWorld *rbw, Object *ob, b
     RB_constraint_set_enabled(static_cast<rbConstraint *>(rbc->physics_constraint),
                               rbc->flag & RBC_FLAG_ENABLED);
 
+    RB_constraint_set_enable_motor( (rbConstraint*)rbc->physics_constraint,
+                                   rbc->flag & RBC_FLAG_USE_MOTOR_LIN,
+                                   rbc->flag & RBC_FLAG_USE_MOTOR_ANG);
+
+    RB_constraint_set_max_impulse_motor(
+					(rbConstraint*)rbc->physics_constraint, rbc->motor_lin_max_impulse, rbc->motor_ang_max_impulse);
+    RB_constraint_set_target_velocity_motor(
+					    (rbConstraint*)rbc->physics_constraint, rbc->motor_lin_target_velocity, rbc->motor_ang_target_velocity);
+
+
+
     if (rbc->flag & RBC_FLAG_USE_BREAKING) {
       RB_constraint_set_breaking_threshold(static_cast<rbConstraint *>(rbc->physics_constraint),
                                            rbc->breaking_threshold);

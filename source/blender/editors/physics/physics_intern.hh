@@ -155,3 +155,6 @@ void RIGIDBODY_OT_constraint_remove(wmOperatorType *ot);
 void RIGIDBODY_OT_world_add(wmOperatorType *ot);
 void RIGIDBODY_OT_world_remove(wmOperatorType *ot);
 void RIGIDBODY_OT_world_export(wmOperatorType *ot);
+
+/* custom methods added */
+void RIGIDBODY_OT_apply_central_impulse(wmOperatorType *ot);
